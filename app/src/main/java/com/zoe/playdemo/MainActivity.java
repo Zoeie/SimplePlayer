@@ -1,9 +1,7 @@
 package com.zoe.playdemo;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -16,6 +14,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.zoe.playdemo.util.LogUtil;
 import com.zoe.playdemo.view.MySeekBar;
 import com.zoe.player.player.PlayConstant;
@@ -27,13 +27,8 @@ import com.zoe.player.player.base.SourceConfigure;
 import com.zoe.player.player.base.SubtitleData;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Proxy;
 import java.util.Formatter;
 import java.util.Locale;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 

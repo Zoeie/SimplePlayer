@@ -216,9 +216,11 @@ public class ExoPlayer implements Player {
                     Cue cue = cues.get(0);
                     int lineAnchor = cue.lineAnchor;
                     int positionAnchor = cue.positionAnchor;
-                    String text = cue.text.toString();
-                    SubtitleData data = new SubtitleData(lineAnchor, positionAnchor, text);
-                    mPlayListener.onSubtitleChanged(data);
+                    if(cue.text != null) {
+                        String text = cue.text.toString();
+                        SubtitleData data = new SubtitleData(lineAnchor, positionAnchor, text);
+                        mPlayListener.onSubtitleChanged(data);
+                    }
                 }
             } else {
                 if (mPlayListener != null) {
