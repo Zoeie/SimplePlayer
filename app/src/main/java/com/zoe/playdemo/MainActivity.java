@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean flag;
     private RelativeLayout rlMain;
     private float speed = 1;
-    private static final String VIDEO_URL = "/sdcard/427taikonglvke.mkv";//普通点播
+    private static final String VIDEO_URL = "http://vod.lemmovie.com/vod/b922ffdd-f220-08c1-501b-ec0fde08b9ee.m3u8";//普通点播
     private MySeekBar seekBar;
     private TextView            tvPassTime;
     private TextView            tvBufferTime;
