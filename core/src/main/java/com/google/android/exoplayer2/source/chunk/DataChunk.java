@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.text.TextUtils;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.parseutil.M3u8ParseUtil;
@@ -31,8 +33,6 @@ import java.util.Arrays;
 public abstract class DataChunk extends Chunk {
 
   private static final int READ_GRANULARITY = 16 * 1024;
-  private static final String HLS_ENCRYPTION_KEY = "a68bcc51632eed81f6e4b66910bdc982e1c4d343770e0d4d02abe3144f5092feade207757d6c82b4b492a00774f3be086315330c57fbbb4f5e7cbb53374217d2";
-  private static final String ENC_SUFFIX = "enc.key";
 
   private byte[] data;
 
@@ -75,12 +75,19 @@ public abstract class DataChunk extends Chunk {
   @Override
   public final void load() throws IOException, InterruptedException {
       try {
-        if (dataSpec.uri.toString().contains(ENC_SUFFIX)) {
-          String parse = M3u8ParseUtil.parse(HLS_ENCRYPTION_KEY);
-          if (parse != null) {
-            data = parse.getBytes();
-            consume(data, data.length);
-            return;
+        String keyUri = dataSpec.uri.toString();
+        if (!TextUtils.isEmpty(keyUri)) {
+          int beginIndex = (keyUri.lastIndexOf("/") + 1);
+          beginIndex = beginIndex > keyUri.length() ? keyUri.length() : beginIndex;
+          String keyStr = keyUri.substring(beginIndex);
+          //如果截取到key长度大于64，则判断为需要解密的key(防止对第三方key进行解密的误处理)
+          if (!TextUtils.isEmpty(keyStr) && keyStr.length() > 64) {
+            String parse = M3u8ParseUtil.parse(keyStr);
+            if (parse != null) {
+              data = parse.getBytes();
+              consume(data, data.length);
+              return;
+            }
           }
         }
       dataSource.open(dataSpec);
