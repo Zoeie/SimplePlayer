@@ -2,17 +2,20 @@ package com.zoe.playdemo;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean flag;
     private RelativeLayout rlMain;
     private float speed = 1;
+    private boolean isPrepared = false;
     private static final String VIDEO_URL = "http://vod.lemmovie.com/vod/b922ffdd-f220-08c1-501b-ec0fde08b9ee.m3u8";//普通点播
     private MySeekBar seekBar;
     private TextView            tvPassTime;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String[] mPaths;
     private int pathIndex=0;
     private ProgressBar mPb;
+    private EditText tvSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvPassTime = findViewById(R.id.tv_pass_time);
         tvBufferTime = findViewById(R.id.tv_buffer_time);
         tvDuration = findViewById(R.id.tv_duration);
+        tvSource = findViewById(R.id.edit_source);
 
         Button btnSwitch = findViewById(R.id.btn_screen_switch);
         btnSwitch.setOnClickListener(this);
@@ -131,11 +137,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         iPlayer = instance.buildPlayer(this, new PlayListener() {
             @Override
             public void onPlayPreparing() {
+                isPrepared = false;
                 LogUtil.d("onPlayPreparing");
             }
 
             @Override
             public void onPlayPrepared() {
+                isPrepared = true;
                 tvDuration.setText(String.format("总时长：%s", formatPlayTime(iPlayer.getDuration())));
                 LogUtil.d("onPlayPrepared");
             }
@@ -180,7 +188,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onPlayError(Exception e, int errorCode) {
-                LogUtil.e("onPlayError："+e.getMessage()+",errorCode:"+errorCode);
+                LogUtil.e("onPlayError：" + e.getMessage() + ",errorCode:" + errorCode);
+                mPb.setVisibility(View.INVISIBLE);
+                Toast.makeText(MainActivity.this, "播放失败", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -201,6 +211,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         subtitleList.add("http://img.lemmovie.com/sub/Game.of.Thrones.S08E01_cn.srt");
         subtitleList.add("http://img.lemmovie.com/sub/quanyou8_1_track3_en.srt");
         SourceConfigure configure = new SourceConfigure(VIDEO_URL,subtitleList);*/
+        //play(VIDEO_URL);
+    }
+
+    private void play(String url) {
         SourceConfigure configure = new SourceConfigure(VIDEO_URL/*,null,"127.0.0.1",9050,Proxy.Type.SOCKS*/);
         //configure.setStartPosition(100 * 1000);
         String path = Environment.getExternalStorageDirectory() + File.separator + "3.ts";
@@ -233,10 +247,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switchScreen();
                 break;
             case R.id.btn_pause:
-                if(iPlayer.isPlaying()) {
-                    iPlayer.pause();
+                if(isPrepared) {
+                    if(iPlayer.isPlaying()) {
+                        iPlayer.pause();
+                    } else {
+                        iPlayer.start();
+                    }
                 } else {
-                    iPlayer.start();
+                    String url = tvSource.getText().toString();
+                    if(TextUtils.isEmpty(url)) {
+                        Toast.makeText(this, "播放连接不能为空", Toast.LENGTH_SHORT).show();
+                    } else {
+                        play(url);
+                    }
                 }
                 break;
             case R.id.btn_subtitle_switch:
