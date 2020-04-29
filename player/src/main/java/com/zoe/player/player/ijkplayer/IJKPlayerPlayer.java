@@ -412,7 +412,11 @@ public class IJKPlayerPlayer implements Player, SurfaceHolder.Callback, Subtitle
 
     @Override
     public void switchSubtitle(int index) {
-
+        if (mSubtitleEngine != null) {
+            if (mSourceConfigure != null && mSourceConfigure.getSubtitleList() != null && index < mSourceConfigure.getSubtitleList().size()) {
+                mSubtitleEngine.setSubtitlePath(mSourceConfigure.getSubtitleList().get(index));
+            }
+        }
     }
 
     @Override
